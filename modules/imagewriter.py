@@ -10,7 +10,7 @@ class ImageWriter:
     
     def __init__(self, dirname):
         print("\n[INFO] Instanciating ImageWriter\n")
-        self.dirname = dirname.strip("/")
+        self.dirname = "output/" + dirname.strip("/")
         self._createdir(self.dirname)
         self.cursor = self._get_cursor_location()
         
@@ -20,7 +20,7 @@ class ImageWriter:
         
     def _createdir(self, dir):
         try:
-            os.mkdir(dir)
+            os.makedirs(dir)
             print("[INFO] Directory '" + dir + "' created")
         except FileExistsError:
             print("[INFO] Directory '" + dir + "' exists. Appending")
