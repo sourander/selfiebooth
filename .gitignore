@@ -3,8 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Output dir
+# Output dir or pickle files
 output/
+*.cpickle
 
 # Any media files
 *.jpg
