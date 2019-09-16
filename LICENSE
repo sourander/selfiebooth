@@ -19,3 +19,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+NOTE! Any code inside a folder or module called pyimagesearch might be licensed
+to Adrian Rosebrock from PyImageSearch. Code has been obtained by attending to his
+online courses. Please contact him if you intend to use parts of his code in 
+any projects - especially if the projects are commercial.
