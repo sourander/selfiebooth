@@ -37,10 +37,11 @@ if(camera.isOpened() == False):
 color, line, capturemode = (0, 255, 0), 1, False
 
 
-# Main loop
+# Main loop begins
+# Exit by pressing "Q"
 while(True):
         
-    # Capture a frame from stream or video. If not grabbed, exit.
+    # Capture a frame, exit if not available.
     (grabbed, frame) = camera.read()
     if not grabbed:
         break
