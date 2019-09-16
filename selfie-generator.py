@@ -83,4 +83,11 @@ while(True):
         # if the `q` key is pressed, break from the loop
     elif key == ord("q"):
         break
+
     
+# Perform cleanup
+print("\n-------------------------------")
+print("[INFO] Total amount of frames of you: {}".format(io.cursor))
+print("[INFO] Files are in output/" + args["output"])
+camera.release()
+cv2.destroyAllWindows()
