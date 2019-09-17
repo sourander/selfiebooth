@@ -23,7 +23,7 @@ args = vars(ap.parse_args())
 # OOP. Instanciate objects (incl. ocal Binary Patterns Histogram)
 detector = cv2.CascadeClassifier("cascades/haarcascade_frontalface_default.xml")
 io = ImageReader(args["dataset"], int(args["samplesize"]))
-recognizer = cv2.face.LBPHFaceRecognizer_create(radius=2, neighbors=16, grid_x=8, grid_y=8)
+recognizer = cv2.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8, grid_y=8)
 
 
 # Load the data from disk. Split to training and testing sets.
