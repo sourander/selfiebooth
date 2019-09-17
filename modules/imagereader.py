@@ -2,6 +2,7 @@
 import cv2
 import os
 import random
+import glob
 from imutils import paths
 
 
@@ -9,21 +10,15 @@ class ImageReader:
     """ This class is responsible for reading the
     dataset images """
 
-    def __init__(self, dirname, samplesize=60):
+    def __init__(self, dirname, samplesize):
         print("\n[INFO] Instanciating ImageReader\n")
         self.dirname = dirname.strip("/")
-        self.full_path = "output/" + dirname.strip("/")
         self.samplesize = samplesize
 
     def load_data(self):
-        imagePaths = list(paths.list_images(self.dirname))
+        imagePaths = self._samplegetter()
         random.shuffle(imagePaths)
-
-        # TODO
-        # USE GLOB TO GET LIST OF NAMES.
-        # RANDOMIZE BY SAMPLESIZE
-        # glob.glob("output/*")
-
+        
         data = []
         labels = []
 
@@ -39,3 +34,18 @@ class ImageReader:
 
 
         return (data, labels)
+
+
+    def _samplegetter(self):
+        folders = glob.glob(self.dirname + "/*")
+                
+        imagePaths = []
+        
+        for folder in folders:
+            name = folder[folder.rfind("/") + 1:]
+            selected = list(paths.list_images("output/" + str(name)))
+            selected = selected[:self.samplesize]
+            for s in selected:
+                imagePaths.append(s)
+                
+        return imagePaths

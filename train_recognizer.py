@@ -1,22 +1,17 @@
 # import the necessary packages
-from __future__ import print_function
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
-from modules.haar_helpers import get_face_coords
 from modules import ImageReader
-from imutils import encodings
 import numpy as np
 import argparse
 import imutils
-import random
-import glob
 import cv2
  
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-s", "--dataset", default="output", help="path to dir containing dataset directories")
-ap.add_argument("-n", "--samplesize", type=int, default=100, help="maximum sample size for each face")
+ap.add_argument("-n", "--samplesize", type=int, default=60, help="maximum sample size for each face")
 args = vars(ap.parse_args())
 
 
@@ -28,7 +23,9 @@ recognizer = cv2.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8,
 
 # Load the data from disk. Split to training and testing sets.
 (data, labels) = io.load_data()
-print(data[0].shape)
+print("[INFO] Size of a single image file is:", data[0].shape)
+print("[INFO] The amount of items in dataset:", len(labels))
+
 
 (trainX, testX, trainY, testY) = train_test_split(data, labels, test_size=0.25)
 
@@ -58,5 +55,5 @@ for i in range(0, len(testX)):
  
 # show the classification report
 print(classification_report(le.transform(testY), predictions,
-    target_names=np.unique(labels)))
+    target_names=le.classes_))
     
