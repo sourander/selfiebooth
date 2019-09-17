@@ -50,7 +50,7 @@ confidence = []
 
 # loop over the test data
 for i in range(0, len(testX)):
-    print("{} of {}".format(str(i), str(len(testing.data))))
+    print("{} of {}".format(str(i), str(len(testX))))
     # classify the face and update the list of predictions and confidence scores
     (prediction, conf) = recognizer.predict(testX[i])
     predictions.append(prediction)
