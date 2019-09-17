@@ -1,4 +1,5 @@
 import cv2
+import os
 
 def get_face_coords(detector, image):
     # HAAR Cascade detection in Open CV. Keeps only the largest.
@@ -14,3 +15,10 @@ def keep_largest(faceRects):
 def crop_face(frame, x, y, w, h):
     face = frame[y:y + h, x:x + w].copy(order="C")
     return face
+
+def create_dir(dir):
+    try:
+        os.makedirs(dir)
+        print("[INFO] Directory '" + dir + "' created")
+    except FileExistsError:
+        print("[INFO] Directory '" + dir + "' exists.")
