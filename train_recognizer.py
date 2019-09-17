@@ -36,13 +36,27 @@ recognizer = cv2.face.LBPHFaceRecognizer_create(radius=2, neighbors=16, grid_x=8
 # Encode string labels to unique integers
 le = LabelEncoder()
 le.fit_transform(trainY)
+le.fit_transform(testY)
+
+
 
 # Train the LBP
 recognizer.train(trainX, le.transform(trainY))
 
+# initialize the list of predictions and confidence scores
+print("[INFO] gathering predictions...")
+predictions = []
+confidence = []
 
-"""
-
-Something
-
-"""
+# loop over the test data
+for i in range(0, len(testX)):
+    print("{} of {}".format(str(i), str(len(testing.data))))
+    # classify the face and update the list of predictions and confidence scores
+    (prediction, conf) = recognizer.predict(testX[i])
+    predictions.append(prediction)
+    confidence.append(conf)
+ 
+# show the classification report
+print(classification_report(le.transform(testY), predictions,
+    target_names=np.unique(labels)))
+    
