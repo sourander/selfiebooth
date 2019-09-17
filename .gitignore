@@ -5,7 +5,9 @@ __pycache__/
 
 # Output dir or pickle files
 output/
+models/
 *.cpickle
+*.model
 
 # Any media files
 *.jpg
