@@ -10,6 +10,7 @@ import argparse
 import imutils
 import cv2
 import os
+import pickle
  
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
@@ -68,3 +69,5 @@ print(classification_report(le.transform(testY), predictions,
 print("[INFO] Writing the model to file: ")
 create_dir(args["models"])
 recognizer.write(args["models"]+"/LBPH.model")
+with open(args["models"]+"/labels.pickle", "wb") as f:
+    pickle.dump(le.classes_, f, pickle.HIGHEST_PROTOCOL)
