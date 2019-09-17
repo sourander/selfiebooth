@@ -28,7 +28,7 @@ recognizer = cv2.face.LBPHFaceRecognizer_create(radius=2, neighbors=16, grid_x=8
 
 # Load the data from disk. Split to training and testing sets.
 (data, labels) = io.load_data()
-
+print(data[0].shape)
 
 (trainX, testX, trainY, testY) = train_test_split(data, labels, test_size=0.25)
 
