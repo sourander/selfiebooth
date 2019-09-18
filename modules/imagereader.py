@@ -4,6 +4,7 @@ import os
 import random
 import glob
 from imutils import paths
+from .haar_helpers import resize_ellipse_face
 
 
 class ImageReader:
@@ -26,7 +27,7 @@ class ImageReader:
             # Load image and process it
             img = cv2.imread(path)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            face = cv2.resize(gray, (48,62))
+            face = resize_ellipse_face(gray)
 
             # Append to lists
             data.append(face)

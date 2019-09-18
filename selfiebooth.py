@@ -1,6 +1,9 @@
 # import the necessary packages
 
 from modules.haar_helpers import get_face_coords
+from modules.haar_helpers import create_dir
+from modules.haar_helpers import crop_face
+from modules.haar_helpers import resize_ellipse_face
 from modules import ImageReader
 import argparse
 import imutils
@@ -58,15 +61,15 @@ while True:
     # loop over the face bounding boxes
     for (i, (x, y, w, h)) in enumerate(faceRects):
         # grab the face to predict
-        face = gray[y:y + h, x:x + w]
-        face = cv2.resize(face, (48,62))
+        face = crop_face(gray, x, y, w, h)
+        face = resize_ellipse_face(face)
          
         # Predict the face
         (prediction, confidence) = recognizer.predict(face)
 
         # Fit labels to the label indexes
         if prediction == -1:
-            (prediction, confidence) = ("Unknown", 0.0)
+            (prediction, confidence) = ("?", 0.0)
         else:
             prediction = labels[prediction]
         printinfo = "{}: {:.2f}".format(prediction, confidence)

@@ -1,5 +1,6 @@
 import cv2
 import os
+import numpy as np
 
 def get_face_coords(detector, image):
     # HAAR Cascade detection in Open CV. Keeps only the largest.
@@ -21,3 +22,14 @@ def create_dir(dir):
         print("[INFO] Directory '" + dir + "' created")
     except FileExistsError:
         print("[INFO] Directory '" + dir + "' exists.")
+        
+def resize_ellipse_face(face):
+    # Resize the image to the desired dimensions
+    (w, h) = (62,62)
+    face = cv2.resize(face, (w,h))
+    
+    # Generate a mask
+    mask = np.zeros((h,w), dtype="uint8")
+    cv2.circle(mask, (w//2, h//2), min(w,h)//2, 255, -1)
+    face = cv2.bitwise_and(face, face, mask=mask)
+    return face
