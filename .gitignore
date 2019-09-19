@@ -6,6 +6,7 @@ __pycache__/
 # Output dir or pickle files
 output/
 models/
+models/*
 *.cpickle
 *.model
 
