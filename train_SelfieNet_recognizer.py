@@ -23,6 +23,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-s", "--dataset", default="output", help="path to dir containing dataset directories")
 ap.add_argument("-n", "--samplesize", type=int, default=60, help="maximum sample size for each face")
 ap.add_argument("-m", "--models",default="models", help="directory name for LBP model and other model output data")
+ap.add_argument("-e", "--epochs", type=int, default=20, help="Number of epochs in training")
 args = vars(ap.parse_args())
 
 
@@ -57,22 +58,22 @@ print("[INFO] Unique labels: {}".format(count_labels))
 print("[INFO] compiling model...")
 
 # TODO! Try out different optimizers such as Adam
-opt = SGD(lr=0.01)
+opt = SGD(lr=0.01, decay=0.01/args["epochs"], momentum=0.9, nesterov=True)
 
 
 model = SelfieNet.build(width=46, height=46, depth=1, classes=count_labels)
-model.compile(loss="categorical_crossentropy", optimizer=opt,
+model.compile(loss="categorical_crossentropy", optimizer="adam",
 	metrics=["accuracy"])
 
 # train the network
 print("[INFO] training network...")
 H = model.fit(trainX, trainY,
-	validation_data=(testX, testY), batch_size=128,
-	epochs=20, verbose=1)
+	validation_data=(testX, testY), batch_size=64,
+	epochs=args["epochs"], verbose=1)
 
 # evaluate the network
 print("[INFO] evaluating network...")
-predictions = model.predict(testX, batch_size=128)
+predictions = model.predict(testX, batch_size=64)
 print(classification_report(testY.argmax(axis=1),
 	predictions.argmax(axis=1),
 	target_names=[str(x) for x in le.classes_]))
@@ -84,10 +85,10 @@ model.save(args["models"] + "/LeNEt.hdf5")
 # plot the training loss and accuracy
 plt.style.use("ggplot")
 plt.figure()
-plt.plot(np.arange(0, 20), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, 20), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, 20), H.history["acc"], label="train_acc")
-plt.plot(np.arange(0, 20), H.history["val_acc"], label="val_acc")
+plt.plot(np.arange(0, args["epochs"]), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, args["epochs"]), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, args["epochs"]), H.history["acc"], label="train_acc")
+plt.plot(np.arange(0, args["epochs"]), H.history["val_acc"], label="val_acc")
 plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
