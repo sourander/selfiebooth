@@ -46,10 +46,10 @@ while(True):
     if not grabbed:
         break
     frame = imutils.resize(frame, width=500)
-
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # HAAR Cascade detection in Open CV. Return all found rectangles.
-    faceRects = get_face_coords(detector, frame)
+    faceRects = get_face_coords(detector, gray)
 
 
     # Continue only if face was found
