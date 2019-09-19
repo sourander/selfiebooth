@@ -4,7 +4,6 @@ from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
 from modules.haar_helpers import create_dir
 from modules import ImageReader
-from modules import ImageWriter
 import numpy as np
 import argparse
 import imutils
