@@ -79,7 +79,7 @@ print(classification_report(testY.argmax(axis=1),
 
 # save the model to disk
 print("[INFO] serializing network...")
-model.save(args["models"] + "LeNEt.hdf5")
+model.save(args["models"] + "/LeNEt.hdf5")
 
 # plot the training loss and accuracy
 plt.style.use("ggplot")
