@@ -5,6 +5,7 @@ import random
 import glob
 from imutils import paths
 from .haar_helpers import resize_ellipse_face
+from keras.preprocessing.image import img_to_array
 
 
 class ImageReader:
@@ -16,7 +17,7 @@ class ImageReader:
         self.dirname = dirname.strip("/")
         self.samplesize = samplesize
 
-    def load_data(self):
+    def load_data(self, w=62, h=62, to_array=False):
         imagePaths = self._samplegetter()
         random.shuffle(imagePaths)
         
@@ -27,8 +28,12 @@ class ImageReader:
             # Load image and process it
             img = cv2.imread(path)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            face = resize_ellipse_face(gray)
-
+            face = resize_ellipse_face(gray, width=w, height=h)
+            
+            # Convert to array
+            if(to_array):
+                face = img_to_array(face)
+            
             # Append to lists
             data.append(face)
             labels.append(path.split("/")[-2])

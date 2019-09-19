@@ -23,9 +23,9 @@ def create_dir(dir):
     except FileExistsError:
         print("[INFO] Directory '" + dir + "' exists.")
         
-def resize_ellipse_face(face):
+def resize_ellipse_face(face, width=62, height=62):
     # Resize the image to the desired dimensions
-    (w, h) = (62,62)
+    (w, h) = (width, height)
     face = cv2.resize(face, (w,h))
     
     # Generate a mask
