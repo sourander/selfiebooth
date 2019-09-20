@@ -17,6 +17,7 @@ import argparse
 import imutils
 import cv2
 import os
+import pickle
 
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
@@ -81,6 +82,8 @@ print(classification_report(testY.argmax(axis=1),
 # save the model to disk
 print("[INFO] serializing network...")
 model.save(args["models"] + "/SelfieNet.hdf5")
+with open(args["models"]+"/labels_SelfieNet.pickle", "wb") as f:
+    pickle.dump(le.classes_, f, pickle.HIGHEST_PROTOCOL)
 
 # plot the training loss and accuracy
 plt.style.use("ggplot")
