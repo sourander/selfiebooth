@@ -10,7 +10,6 @@ import argparse
 import imutils
 import cv2
 import pickle
-from keras.preprocessing.image import img_to_array
  
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
@@ -59,7 +58,6 @@ while True:
         face = resize_ellipse_face(face, width=46, height=46)
         
         face = np.array(face, dtype="float") / 255.0
-        face = img_to_array(face)
         face = face.reshape((-1, 46, 46, 1))
          
         # Predict the face
