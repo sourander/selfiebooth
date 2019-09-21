@@ -63,8 +63,9 @@ while(True):
             io.writefile(face)
     
     
-    # Display the image to the user, whether a face was found or not.
-    cv2.rectangle(frame, (x, y), (x + w, y + h), color, line)
+        # Display the image to the user, whether a face was found or not.
+        cv2.rectangle(frame, (x, y), (x + w, y + h), color, line)
+    
     cv2.imshow("Current frame", frame)
     key = cv2.waitKey(1) & 0xFF
     
