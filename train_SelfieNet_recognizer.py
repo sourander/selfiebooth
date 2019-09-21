@@ -9,22 +9,19 @@ from sklearn.metrics import classification_report
 from keras.utils import np_utils
 from modules.nn import SelfieNet
 from modules import ImageReader
-from modules.haar_helpers import resize_ellipse_face
-from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
-import imutils
 import cv2
-import os
 import pickle
 
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-s", "--dataset", default="output", help="path to dir containing dataset directories")
+ap.add_argument("-d", "--dataset", default="output", help="path to dir containing dataset directories")
 ap.add_argument("-n", "--samplesize", type=int, default=60, help="maximum sample size for each face")
 ap.add_argument("-m", "--models",default="models", help="directory name for LBP model and other model output data")
 ap.add_argument("-e", "--epochs", type=int, default=20, help="Number of epochs in training")
+ap.add_argument("-s", "--size", type=int, default=46, help="Image dimension fed into SelfieNet")
 args = vars(ap.parse_args())
 
 
@@ -35,7 +32,7 @@ recognizer = cv2.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8,
 
 
 # Load the data from disk. Split to training and testing sets.
-(data, labels) = io.load_data(w=46, h=46, to_array=True)
+(data, labels) = io.load_data(w=args["size"], h=args["size"], to_array=True, applylbp=False)
 print("[INFO] Size of a single image file is:", data[0].shape)
 print("[INFO] The amount of items in dataset:", len(labels))
 
@@ -62,7 +59,7 @@ print("[INFO] compiling model...")
 opt = SGD(lr=0.01, decay=0.01/args["epochs"], momentum=0.9, nesterov=True)
 
 
-model = SelfieNet.build(width=46, height=46, depth=1, classes=count_labels)
+model = SelfieNet.build(width=args["size"], height=args["size"], depth=1, classes=count_labels)
 model.compile(loss="categorical_crossentropy", optimizer="adam",
 	metrics=["accuracy"])
 

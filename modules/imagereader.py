@@ -17,7 +17,7 @@ class ImageReader:
         self.dirname = dirname.strip("/")
         self.samplesize = samplesize
 
-    def load_data(self, w=62, h=62, to_array=False):
+    def load_data(self, w=62, h=62, to_array=False, applylbp=False):
         imagePaths = self._samplegetter()
         random.shuffle(imagePaths)
         
@@ -28,7 +28,7 @@ class ImageReader:
             # Load image and process it
             img = cv2.imread(path)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            face = resize_ellipse_face(gray, width=w, height=h)
+            face = resize_ellipse_face(gray, width=w, height=h, lbp=applylbp)
             
             # Convert to array
             if(to_array):

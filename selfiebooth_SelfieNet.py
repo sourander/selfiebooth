@@ -14,6 +14,7 @@ import pickle
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--model", default="models/SelfieNet.hdf5", help="path to the classifier")
+ap.add_argument("-s", "--size", type=int, default=46, help="Image dimension fed into SelfieNet")
 args = vars(ap.parse_args())
  
 # initialize the HAAR face detector
@@ -55,10 +56,10 @@ while True:
     for (i, (x, y, w, h)) in enumerate(faceRects):
         # grab the face to predict
         face = crop_face(gray, x, y, w, h)
-        face = resize_ellipse_face(face, width=46, height=46)
+        face = resize_ellipse_face(face, width=args["size"], height=args["size"], lbp=False)
         
         face = np.array(face, dtype="float") / 255.0
-        face = face.reshape((-1, 46, 46, 1))
+        face = face.reshape((-1, args["size"], args["size"], 1))
          
         # Predict the face
         preds = model.predict(face, batch_size=32).argmax(axis=1)
