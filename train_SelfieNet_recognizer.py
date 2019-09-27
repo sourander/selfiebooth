@@ -1,5 +1,4 @@
 # USAGE
-# python lenet_mnist.py
 
 # import the necessary packages
 from keras.optimizers import SGD
@@ -19,7 +18,7 @@ import pickle
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", default="output", help="path to dir containing dataset directories")
 ap.add_argument("-n", "--samplesize", type=int, default=60, help="maximum sample size for each face")
-ap.add_argument("-m", "--models",default="models", help="directory name for LBP model and other model output data")
+ap.add_argument("-m", "--models",default="models", help="directory name for SelfieNet model")
 ap.add_argument("-e", "--epochs", type=int, default=20, help="Number of epochs in training")
 ap.add_argument("-s", "--size", type=int, default=46, help="Image dimension fed into SelfieNet")
 args = vars(ap.parse_args())

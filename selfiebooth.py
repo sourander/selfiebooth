@@ -1,5 +1,7 @@
 # import the necessary packages
 
+from imutils.video import WebcamVideoStream
+from imutils.video import FPS
 from modules.haar_helpers import get_face_coords
 from modules.haar_helpers import create_dir
 from modules.haar_helpers import crop_face
@@ -34,22 +36,16 @@ with open('models/labels.pickle', 'rb') as f:
 font = cv2.FONT_HERSHEY_SIMPLEX
 color = (0, 255, 0)
 
-# grab a reference to the webcam
-camera = cv2.VideoCapture(0)
+# initialize the camra
+camera = WebcamVideoStream(src=0).start()
+fps = FPS().start()
 
-# For debugging
-if(camera.isOpened() == False):
-    print("[INFO] Camera has not been found. Enabling debug mode.")
-    camera = cv2.VideoCapture("test.mp4")
 
 # loop over the frames of the video
 while True:
     # grab the current frame
-    (grabbed, frame) = camera.read()
+    frame = camera.read()
 
-    # if the frame could not be grabbed, then we have reached the end of the video
-    if not grabbed:
-        break
 
     # resize the frame, convert the frame to grayscale, and detect faces in the frame
     frame = imutils.resize(frame, width=500)
@@ -82,12 +78,20 @@ while True:
     # show the frame and record if the user presses a key
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
+    
+    # Update FPS counter
+    fps.update()
  
     # if the `q` key is pressed, break from the loop
     if key == ord("q"):
         break
  
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps())) 
+
 # cleanup the camera and close any open windows
-camera.release()
 cv2.destroyAllWindows()
+camera.stop()
 
