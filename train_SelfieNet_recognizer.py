@@ -8,6 +8,7 @@ from sklearn.metrics import classification_report
 from keras.utils import np_utils
 from modules.nn import SelfieNet
 from modules import ImageReader
+from modules import Conf
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
@@ -16,22 +17,21 @@ import pickle
 
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--dataset", default="output", help="path to dir containing dataset directories")
-ap.add_argument("-n", "--samplesize", type=int, default=60, help="maximum sample size for each face")
-ap.add_argument("-m", "--models",default="models", help="directory name for SelfieNet model")
-ap.add_argument("-e", "--epochs", type=int, default=20, help="Number of epochs in training")
-ap.add_argument("-s", "--size", type=int, default=46, help="Image dimension fed into SelfieNet")
+ap.add_argument("-c", "--conf", required=True, help="Path to config e.g. conf/selfienet.conf")
 args = vars(ap.parse_args())
+
+# Load JSON config file
+conf = Conf(args["conf"])
 
 
 # OOP. Instanciate objects (incl. ocal Binary Patterns Histogram)
 detector = cv2.CascadeClassifier("cascades/haarcascade_frontalface_default.xml")
-io = ImageReader(args["dataset"], int(args["samplesize"]))
+io = ImageReader(conf["datasetpath"], int(conf["samplesize"]))
 recognizer = cv2.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8, grid_y=8)
 
 
 # Load the data from disk. Split to training and testing sets.
-(data, labels) = io.load_data(w=args["size"], h=args["size"], to_array=True, applylbp=False)
+(data, labels) = io.load_data(w=conf["size"], h=conf["size"], to_array=True, applylbp=conf["lbp"])
 print("[INFO] Size of a single image file is:", data[0].shape)
 print("[INFO] The amount of items in dataset:", len(labels))
 
@@ -55,10 +55,10 @@ print("[INFO] Unique labels: {}".format(count_labels))
 print("[INFO] compiling model...")
 
 # TODO! Try out different optimizers such as Adam
-opt = SGD(lr=0.01, decay=0.01/args["epochs"], momentum=0.9, nesterov=True)
+opt = SGD(lr=0.01, decay=0.01/conf["epochs"], momentum=0.9, nesterov=True)
 
 
-model = SelfieNet.build(width=args["size"], height=args["size"], depth=1, classes=count_labels)
+model = SelfieNet.build(width=conf["size"], height=conf["size"], depth=1, classes=count_labels)
 model.compile(loss="categorical_crossentropy", optimizer="adam",
 	metrics=["accuracy"])
 
@@ -66,7 +66,7 @@ model.compile(loss="categorical_crossentropy", optimizer="adam",
 print("[INFO] training network...")
 H = model.fit(trainX, trainY,
 	validation_data=(testX, testY), batch_size=64,
-	epochs=args["epochs"], verbose=1)
+	epochs=conf["epochs"], verbose=1)
 
 # evaluate the network
 print("[INFO] evaluating network...")
@@ -77,17 +77,17 @@ print(classification_report(testY.argmax(axis=1),
 
 # save the model to disk
 print("[INFO] serializing network...")
-model.save(args["models"] + "/SelfieNet.hdf5")
-with open(args["models"]+"/labels_SelfieNet.pickle", "wb") as f:
+model.save(conf["modelspath"] + "/SelfieNet.hdf5")
+with open(conf["modelspath"]+"/labels_SelfieNet.pickle", "wb") as f:
     pickle.dump(le.classes_, f, pickle.HIGHEST_PROTOCOL)
 
 # plot the training loss and accuracy
 plt.style.use("ggplot")
 plt.figure()
-plt.plot(np.arange(0, args["epochs"]), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, args["epochs"]), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, args["epochs"]), H.history["accuracy"], label="train_acc")
-plt.plot(np.arange(0, args["epochs"]), H.history["val_accuracy"], label="val_acc")
+plt.plot(np.arange(0, conf["epochs"]), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, conf["epochs"]), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, conf["epochs"]), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, conf["epochs"]), H.history["val_accuracy"], label="val_acc")
 plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")

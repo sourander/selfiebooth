@@ -6,6 +6,7 @@ from modules.haar_helpers import get_face_coords
 from modules.haar_helpers import crop_face
 from modules.haar_helpers import resize_ellipse_face
 from modules import ImageReader
+from modules import Conf
 from keras.models import load_model
 import numpy as np
 import argparse
@@ -15,16 +16,18 @@ import pickle
  
 # construct the argument parse and parse command line arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-m", "--model", default="models/SelfieNet.hdf5", help="path to the classifier")
-ap.add_argument("-s", "--size", type=int, default=46, help="Image dimension fed into SelfieNet")
+ap.add_argument("-c", "--conf", required=True, help="Path to config e.g. conf/selfienet.conf")
 args = vars(ap.parse_args())
+
+# Load JSON config file
+conf = Conf(args["conf"])
  
 # initialize the HAAR face detector
-detector = cv2.CascadeClassifier("cascades/haarcascade_frontalface_default.xml")
+detector = cv2.CascadeClassifier(conf["haar"])
 
 # load the pre-trained network
 print("[INFO] loading pre-trained network...")
-model = load_model(args["model"])
+model = load_model(conf["model"])
 
 # Import labels
 with open('models/labels_SelfieNet.pickle', 'rb') as f:
@@ -37,7 +40,9 @@ color = (0, 255, 0)
 
 # initialize the camra
 camera = WebcamVideoStream(src=0).start()
-fps = FPS().start()
+
+if conf["fps"]:
+    fps = FPS().start()
 
 # loop over the frames of the video
 while True:
@@ -56,10 +61,10 @@ while True:
     for (i, (x, y, w, h)) in enumerate(faceRects):
         # grab the face to predict
         face = crop_face(gray, x, y, w, h)
-        face = resize_ellipse_face(face, width=args["size"], height=args["size"], lbp=False)
+        face = resize_ellipse_face(face, width=conf["size"], height=conf["size"], lbp=conf["lbp"])
         
         face = np.array(face, dtype="float") / 255.0
-        face = face.reshape((-1, args["size"], args["size"], 1))
+        face = face.reshape((-1, conf["size"], conf["size"], 1))
          
         # Predict the face
         preds = model.predict(face, batch_size=32).argmax(axis=1)
@@ -79,16 +84,18 @@ while True:
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
     
-    fps.update()
+    if conf["fps"]:
+        fps.update()
  
     # if the `q` key is pressed, break from the loop
     if key == ord("q"):
         break
  
 # stop the timer and display FPS information
-fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps())) 
+if conf["fps"]:
+    fps.stop()
+    print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+    print("[INFO] approx. FPS: {:.2f}".format(fps.fps())) 
 
 # cleanup the camera and close any open windows
 cv2.destroyAllWindows()
