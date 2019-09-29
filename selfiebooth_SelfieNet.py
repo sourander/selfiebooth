@@ -5,7 +5,6 @@ from imutils.video import FPS
 from modules.haar_helpers import get_face_coords
 from modules.haar_helpers import crop_face
 from modules.haar_helpers import resize_ellipse_face
-from modules import ImageReader
 from modules import Conf
 from keras.models import load_model
 import numpy as np

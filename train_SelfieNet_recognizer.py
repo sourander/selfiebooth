@@ -54,9 +54,6 @@ print("[INFO] Unique labels: {}".format(count_labels))
 # initialize the optimizer and model
 print("[INFO] compiling model...")
 
-# TODO! Try out different optimizers such as Adam
-opt = SGD(lr=0.01, decay=0.01/conf["epochs"], momentum=0.9, nesterov=True)
-
 
 model = SelfieNet.build(width=conf["size"], height=conf["size"], depth=1, classes=count_labels)
 model.compile(loss="categorical_crossentropy", optimizer="adam",

@@ -6,61 +6,65 @@
 # Press Q to quit.
 
 # import the necessary packages
+from modules import ImageDataHandler
+from modules import Conf
 import argparse
 import cv2
 import imutils
-from modules.haar_helpers import get_face_coords
-from modules.haar_helpers import keep_largest
-from modules.haar_helpers import crop_face
-from modules import ImageWriter
+
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-o", "--output", 
-    required=True, help="Name of the output folder.")
+ap.add_argument("-n", "--name", required=True, help="Your name")
+ap.add_argument("-c", "--idhconf", default="conf/idhconf.conf", 
+    help="Not to be changed in normal condition")
 args = vars(ap.parse_args())
 
-       
-# OOP. Instanciate objects.
-detector = cv2.CascadeClassifier("cascades/haarcascade_frontalface_default.xml")
-io = ImageWriter(args["output"])
+
+# Load JSON config file(s)
+idhconf = Conf(args["idhconf"])
+
+
+# Load CV2 Cascade Classifier
+detector = cv2.CascadeClassifier(idhconf["haar"])
+
+
+# Call the ImageDataHandler which performs all HAAR operations
+# and all image input and output
+idh = ImageDataHandler(bdir=idhconf["baseDir"], n=args["name"], d=detector)
+
+
+# Start camera and set REC off by default
 camera = cv2.VideoCapture(0)
-
-
-""" THIS IS FOR DEBUGGING """
-if(camera.isOpened() == False):
-    print("[INFO] Camera has not been found. Enabling debug mode.")
-    camera = cv2.VideoCapture("test.mp4")
-
-
-# Initialize variables for capture mode toggling
-color, line, capturemode = (0, 255, 0), 1, False
-
+capturemode = False
+color, line = idhconf["green"], idhconf["thinline"]
 
 # Main loop begins
-# Exit by pressing "Q"
 while(True):
         
     # Capture a frame, exit if not available.
     (grabbed, frame) = camera.read()
     if not grabbed:
         break
+
     frame = imutils.resize(frame, width=500)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # HAAR Cascade detection in Open CV. Return all found rectangles.
-    faceRects = get_face_coords(detector, gray)
+    faceRects = idh.get_face_coords(gray)
 
 
     # Continue only if face was found
     if (len(faceRects) > 0):
         # Discard other rectangles except the largest
-        (x, y, w, h) = keep_largest(faceRects)
-        face = crop_face(frame, x, y, w, h)
+        (x, y, w, h) = idh.keep_largest(faceRects)
+        
+        # Crop face from colored 'frame'
+        face = frame[y:y + h, x:x + w].copy(order="C")
         
         # Save a file if REC button has been pressed
         if(capturemode):
-            io.writefile(face)
+            idh.writefile(face)
     
     
         # Display the image to the user, whether a face was found or not.
@@ -74,13 +78,13 @@ while(True):
     if key == 32:
         if not capturemode:
             capturemode = True
-            color, line = (0, 0, 255), 3
+            color, line = idhconf["red"], idhconf["thickline"]
             print("Capturemode has been toggled ON")
 
         # otherwise, back out of capture mode
         else:
             capturemode = False
-            color, line = (0, 255, 0), 1
+            color, line = idhconf["green"], idhconf["thinline"]
             print("Capturemode has been toggled OFF")
         # if the `q` key is pressed, break from the loop
     elif key == ord("q"):
@@ -89,7 +93,7 @@ while(True):
     
 # Perform cleanup
 print("\n-------------------------------")
-print("[INFO] Total amount of frames of you: {}".format(io.cursor))
-print("[INFO] Files are in output/" + args["output"])
+print("[INFO] Total amount of frames of you: {}".format(idh.cursor))
+print("[INFO] Files are in " + idhconf["baseDir"] + "/" + args["name"])
 camera.release()
 cv2.destroyAllWindows()
