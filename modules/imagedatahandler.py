@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import os
 from imutils import paths
+from skimage import feature
 
 
 class ImageDataHandler:
@@ -45,6 +46,18 @@ class ImageDataHandler:
         # Get filename for saving e.g. output/jani/
         path = dir + "/" + self._getfilename()
         cv2.imwrite(path, image)
+        
+    def lbp(self, face, no_points, radius):
+        face = feature.local_binary_pattern(face, no_points, radius, method="default")
+        return face
+        
+    
+    def ellipsemask(self, image, w, h):
+        # Generate a mask
+        mask = np.zeros((h,w), dtype="uint8")
+        cv2.ellipse(mask,(w//2,h//2),(int(w/2*0.7),h//2),0,0,360,255,-1)
+        image = cv2.bitwise_and(image, image, mask=mask)
+        return image
 
 
     def _get_cursor_location(self):

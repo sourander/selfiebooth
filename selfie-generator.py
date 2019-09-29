@@ -16,7 +16,7 @@ import imutils
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--name", required=True, help="Your name")
-ap.add_argument("-c", "--idhconf", default="conf/idhconf.conf", 
+ap.add_argument("-i", "--idhconf", default="conf/idhconf.conf", 
     help="Not to be changed in normal condition")
 args = vars(ap.parse_args())
 
