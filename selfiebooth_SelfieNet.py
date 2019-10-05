@@ -27,7 +27,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
  
 # initialize the HAAR face detector
-detector = cv2.CascadeClassifier(conf["haar"])
+detector = cv2.CascadeClassifier(idhconf["haar"])
 
 # Call the ImageDataHandler which performs all HAAR operations
 # and all image input and output
@@ -88,12 +88,9 @@ while True:
         predictions = model.predict(face, batch_size=32)
         preds = predictions.argmax(axis=1)
         confidence = predictions.max()
-        
-        # Turn ["'name'"] into name
-        name = str(labels[preds].astype(str))[2:-2]
-        
+            
         # Generate info to be printed for the user
-        printinfo = "{}: {:.2f}".format(name, confidence)
+        printinfo = "{}: {:.2f}".format(labels[preds[0]], confidence)
         
         # Add info to frame
         cv2.putText(frame, printinfo, (x, y - 20), font, 0.75, (0,255,0), 2)
