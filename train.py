@@ -1,4 +1,9 @@
 # USAGE
+# python train.py --conf conf/selfienet.conf
+# python train.py --conf conf/lbph.conf
+
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # import the necessary packages
 from keras.optimizers import SGD
@@ -30,9 +35,11 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 # initialize the HAAR face detector
 detector = cv2.CascadeClassifier(idhconf["haar"])
 
+
 # Call the ImageDataHandler which performs all HAAR operations
 # and all image input and output
 idh = ImageDataHandler(bdir=idhconf["baseDir"], d=detector, sample=conf["samplesize"], size=conf["size"])
+
 
 # Load data and matching labels from output/*dirs*
 # Config will determine if Keras preprocessing is applied
@@ -40,16 +47,24 @@ idh = ImageDataHandler(bdir=idhconf["baseDir"], d=detector, sample=conf["samples
 # Keras is expecting (1,64,64,1) as float 0...1
 (data, labels) = idh.load_data(conf)
 
+
 # Count unique labels
 count_labels = len(set(labels))
+model = None
+recognizer = None
 
-le = LabelEncoder().fit(labels)
-labels = np_utils.to_categorical(le.transform(labels), count_labels)
+
+le = LabelEncoder()
+# For Keras, fit 'name' to -> 0,0,0,1,0
+if conf["network"] == "keras":
+    labels = np_utils.to_categorical(le.fit_transform(labels), count_labels)
 
 # Split dataset into training and test sets
 (trainX, testX, trainY, testY) = train_test_split(data,	labels, test_size=0.20, stratify=labels)
 
-print("[INFO] compiling model...")
+if conf["network"] == "lbph":
+    le.fit_transform(trainY)
+    le.fit_transform(testY)
 
 if conf["network"] == "keras":
     print("[INFO] compiling neural network model...")
@@ -68,9 +83,46 @@ if conf["network"] == "keras":
                                 predictions.argmax(axis=1),
                                 target_names=[str(x) for x in le.classes_]))
 
-    # save the model to disk
-    print("[INFO] serializing network...")
-    model.save(conf["modelspath"] + "/SelfieNet.hdf5")
-    with open(conf["modelspath"] + "/labels_SelfieNet.pickle", "wb") as f:
-        pickle.dump(list(le.classes_), f, pickle.HIGHEST_PROTOCOL)
+elif conf["network"] == "lbph":
+    print("[INFO] creating LBPH Face Recognizer")
+    recognizer = cv2.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8, grid_y=8)
+    recognizer.train(trainX, le.transform(trainY))
+
+    # initialize the list of predictions and confidence scores
+    print("[INFO] gathering predictions...")
+    predictions = []
+    confidence = []
+
+    # loop over the test data
+    for i in range(0, len(testX)):
+        print("{} of {}".format(str(i), str(len(testX))))
+        # classify the face and update the list of predictions and confidence scores
+        (prediction, conf_num) = recognizer.predict(testX[i])
+        predictions.append(prediction)
+        confidence.append(conf_num)
+
+    # show the classification report
+    print(classification_report(le.transform(testY), predictions,
+                                target_names=[str(x) for x in le.classes_]))
+
+else:
+    print("[INFO] Network name not known or not set in config file.")
+
+
+
+# save the model to disk
+print("[INFO] serializing network...")
+idh.createdir(conf["modelspath"], verbose=False)
+if model is not None:
+    model.save(conf["model"])
+    print("[INFO] Model saved to file: ", conf["model"])
+elif recognizer is not None:
+    recognizer.write(conf["model"])
+    print("[INFO] Recognizer saved to file: ", conf["model"])
+else:
+    print("[INFO] Nothing to write to disk.")
+
+with open(conf["labelsfile"], "wb") as f:
+    pickle.dump(list(le.classes_), f, pickle.HIGHEST_PROTOCOL)
+    print("[INFO] Labels saved to file: ", conf["labelsfile"])
 

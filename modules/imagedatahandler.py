@@ -15,7 +15,7 @@ class ImageDataHandler:
         # This applies only if argument --name was given; we want to create new files
         self.subjectname = n
         if n is not None:
-            self._createdir(os.path.join(self.base_dir, self.subjectname))
+            self.createdir(os.path.join(self.base_dir, self.subjectname))
             self.cursor = self._get_cursor_location()
         
         # HAAR
@@ -76,6 +76,11 @@ class ImageDataHandler:
 
                 # Apply Keras preprocessing (e.g. float and array convert)
                 face = self.keras_preprocess(face, conf["size"])
+
+            elif conf["network"] == "lbph":
+                face = self.ellipsemask(face, conf["size"], conf["size"])
+            else:
+                print("Network unknown in ImageDataHandler")
 
             # Append to lists
             data.append(face)
@@ -140,10 +145,10 @@ class ImageDataHandler:
         return current
         
         
-    def _createdir(self, dir):
+    def createdir(self, dir, verbose=True):
         try:
             os.makedirs(dir)
-            print("[INFO] Directory '" + dir + "' created")
+            print("[INFO] Directory '" + dir + "' created") if verbose else True
         except FileExistsError:
-            print("[INFO] Directory '" + dir + "' exists. Appending")
+            print("[INFO] Directory '" + dir + "' exists. Appending") if verbose else True
 
