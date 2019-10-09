@@ -25,7 +25,7 @@ The program will train SelfieNet on a Rasbperry Pi 4 for around 12 minutes. If y
 
 Finally, you can launch the selfiebooth that will recognize people in the image area:
 ```
-python selfiebooth --conf
+python selfiebooth --conf conf/selfienet.conf
 ```
 
 The project has been tested with 21 people under a fairly controlled environment; test results were surprisingly good considering the shallowness of the network. Adding another CONV layer (and ACT and POOL) to the SelfieNet improves the results, but of course increases the time it takes to train the network. My suggestion is to use rsync/scp to move data between Raspberry and a server running Tensorflow-GPU. Tesla V100 trains the same network a lot faster (12 minutes vs. 5 seconds).
